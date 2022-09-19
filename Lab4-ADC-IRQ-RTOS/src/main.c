@@ -16,6 +16,9 @@
 /* RTOS                                                                */
 /************************************************************************/
 
+#define TASK_PROC_STACK_SIZE (1024*10 / sizeof(portSTACK_TYPE))
+#define TASK_PROC_STACK_PRIORITY (tskIDLE_PRIORITY)
+
 #define TASK_ADC_STACK_SIZE (1024*10 / sizeof(portSTACK_TYPE))
 #define TASK_ADC_STACK_PRIORITY (tskIDLE_PRIORITY)
 
@@ -31,6 +34,7 @@ extern void xPortSysTickHandler(void);
 /************************************************************************/
 
 /** Queue for msg log send data */
+QueueHandle_t xQueuePROC;
 QueueHandle_t xQueueADC;
 
 typedef struct {
@@ -103,6 +107,28 @@ static void AFEC_pot_Callback(void) {
 /* TASKS                                                                */
 /************************************************************************/
 
+static void task_proc(void *pvParameters) {
+  adcData adc;
+  long accumulator = 0;
+  long index = 0;
+
+  while (1) {
+    if (xQueueReceive(xQueueADC, &(adc), 1000)) {
+      if (index < 10) {
+        accumulator = (accumulator + adc.value) / 2;
+        index++;
+      }
+      else {
+        adc.value = accumulator;
+
+        xQueueSendToBack(xQueuePROC, &(adc), 1000);
+
+        index = 0;
+      }
+    }
+  }
+}
+
 static void task_adc(void *pvParameters) {
 
   // configura ADC e TC para controlar a leitura
@@ -114,7 +140,7 @@ static void task_adc(void *pvParameters) {
   adcData adc;
 
   while (1) {
-    if (xQueueReceive(xQueueADC, &(adc), 1000)) {
+    if (xQueueReceive(xQueuePROC, &(adc), 1000)) {
       printf("ADC: %d \n", adc);
     } else {
       printf("Nao chegou um novo dado em 1 segundo");
@@ -219,6 +245,10 @@ int main(void) {
   board_init();
   configure_console();
 
+  xQueuePROC = xQueueCreate(100, sizeof(adcData));
+  if (xQueuePROC == NULL)
+    printf("falha em criar a queue xQueuePROC \n");
+
   xQueueADC = xQueueCreate(100, sizeof(adcData));
   if (xQueueADC == NULL)
     printf("falha em criar a queue xQueueADC \n");
@@ -226,6 +256,11 @@ int main(void) {
   if (xTaskCreate(task_adc, "ADC", TASK_ADC_STACK_SIZE, NULL,
                   TASK_ADC_STACK_PRIORITY, NULL) != pdPASS) {
     printf("Failed to create test ADC task\r\n");
+  }
+
+  if (xTaskCreate(task_proc, "PROC", TASK_PROC_STACK_SIZE, NULL,
+                  TASK_PROC_STACK_PRIORITY, NULL) != pdPASS) {
+    printf("Failed to create test PROC task\r\n");
   }
 
   vTaskStartScheduler();
