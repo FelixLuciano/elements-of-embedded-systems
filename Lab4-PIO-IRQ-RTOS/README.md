@@ -10,7 +10,8 @@ Exemplo demonstra duas tarefas, a primeira (`task_but`) lida com um sinal de int
     
 - Pinos:
     - `PC8`: LED do kit kit
-    - `PA11`: Botão
+    - `PD28`: Botão de decremento
+    - `PC31`: Botão de incremento
     - `stdio` / DEBUG
         - `PB4`:  UART1 
         - `PD21`: UART1

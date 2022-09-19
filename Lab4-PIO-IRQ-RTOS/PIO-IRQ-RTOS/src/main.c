@@ -5,14 +5,19 @@
 /* BOARD CONFIG                                                         */
 /************************************************************************/
 
-#define BUT_PIO PIOA
-#define BUT_PIO_ID ID_PIOA
-#define BUT_PIO_PIN 11
-#define BUT_PIO_PIN_MASK (1 << BUT_PIO_PIN)
+#define BUT_1_PIO PIOD
+#define BUT_1_PIO_ID ID_PIOD
+#define BUT_1_PIO_PIN 28
+#define BUT_1_PIO_PIN_MASK (1 << BUT_1_PIO_PIN)
+
+#define BUT_2_PIO PIOC
+#define BUT_2_PIO_ID ID_PIOC
+#define BUT_2_PIO_IDX 31
+#define BUT_2_PIO_PIN_MASK (1u << BUT_2_PIO_IDX)
 
 #define LED_PIO PIOC
 #define LED_PIO_ID ID_PIOC
-#define LED_PIO_IDX 8
+#define LED_PIO_IDX 30
 #define LED_IDX_MASK (1 << LED_PIO_IDX)
 
 #define USART_COM_ID ID_USART1
@@ -142,18 +147,27 @@ static void task_but(void *pvParameters) {
   for (;;) {
     /* aguarda por tempo inderteminado até a liberacao do semaforo */
     if (xSemaphoreTake(xSemaphoreBut, 1000)) {
-      /* atualiza frequencia */
-      delayTicks -= 100;
+      if (pio_get(BUT_1_PIO, PIO_INPUT, BUT_1_PIO_PIN_MASK) == 0) {
+        if (delayTicks > 100) {
+          delayTicks -= 100;
+        }
+        else {
+          delayTicks = 900;
+        }
+      }
+      if (pio_get(BUT_2_PIO, PIO_INPUT, BUT_2_PIO_PIN_MASK) == 0) {
+        if (delayTicks < 900) {
+          delayTicks += 100;
+        }
+        else {
+          delayTicks = 100;
+        }
+      }
 
       /* envia nova frequencia para a task_led */
       xQueueSend(xQueueLedFreq, (void *)&delayTicks, 10);
 	    
       printf("task_but: %d \n", delayTicks);
-
-      /* garante range da freq. */
-      if (delayTicks == 100) {
-        delayTicks = 900;
-      }
     }
   }
 }
@@ -196,25 +210,50 @@ void LED_init(int estado){
 static void BUT_init(void) {
   // Configura PIO para lidar com o pino do botão como entrada
   // com pull-up
-  pio_configure(BUT_PIO, PIO_INPUT, BUT_PIO_PIN_MASK, PIO_PULLUP);
+  pio_configure(BUT_1_PIO, PIO_INPUT, BUT_1_PIO_PIN_MASK, PIO_PULLUP | PIO_DEBOUNCE);
+  pio_set_debounce_filter(BUT_1_PIO, BUT_1_PIO_PIN_MASK, 60);
 
   // Configura interrupção no pino referente ao botao e associa
   // função de callback caso uma interrupção for gerada
   // a função de callback é a: but_callback()
-  pio_handler_set(BUT_PIO,
-                  BUT_PIO_ID,
-                  BUT_PIO_PIN_MASK,
+  pio_handler_set(BUT_1_PIO,
+                  BUT_1_PIO_ID,
+                  BUT_1_PIO_PIN_MASK,
                   PIO_IT_FALL_EDGE,
                   but_callback);
 
   // Ativa interrupção e limpa primeira IRQ gerada na ativacao
-  pio_enable_interrupt(BUT_PIO, BUT_PIO_PIN_MASK);
-  pio_get_interrupt_status(BUT_PIO);
+  pio_enable_interrupt(BUT_1_PIO, BUT_1_PIO_PIN_MASK);
+  pio_get_interrupt_status(BUT_1_PIO);
   
   // Configura NVIC para receber interrupcoes do PIO do botao
   // com prioridade 4 (quanto mais próximo de 0 maior)
-  NVIC_EnableIRQ(BUT_PIO_ID);
-  NVIC_SetPriority(BUT_PIO_ID, 4); // Prioridade 4
+  NVIC_EnableIRQ(BUT_1_PIO_ID);
+  NVIC_SetPriority(BUT_1_PIO_ID, 4); // Prioridade 4
+  
+
+  // Configura PIO para lidar com o pino do botão como entrada
+  // com pull-up
+  pio_configure(BUT_2_PIO, PIO_INPUT, BUT_2_PIO_PIN_MASK, PIO_PULLUP | PIO_DEBOUNCE);
+  pio_set_debounce_filter(BUT_2_PIO, BUT_2_PIO_PIN_MASK, 60);
+
+  // Configura interrupção no pino referente ao botao e associa
+  // função de callback caso uma interrupção for gerada
+  // a função de callback é a: but_callback()
+  pio_handler_set(BUT_2_PIO,
+                  BUT_2_PIO_ID,
+                  BUT_2_PIO_PIN_MASK,
+                  PIO_IT_FALL_EDGE,
+                  but_callback);
+
+  // Ativa interrupção e limpa primeira IRQ gerada na ativacao
+  pio_enable_interrupt(BUT_2_PIO, BUT_2_PIO_PIN_MASK);
+  pio_get_interrupt_status(BUT_2_PIO);
+  
+  // Configura NVIC para receber interrupcoes do PIO do botao
+  // com prioridade 4 (quanto mais próximo de 0 maior)
+  NVIC_EnableIRQ(BUT_2_PIO_ID);
+  NVIC_SetPriority(BUT_2_PIO_ID, 4); // Prioridade 4
 }
 
 /************************************************************************/
@@ -232,7 +271,7 @@ int main(void) {
   board_init();
   configure_console();
 	
-  printf("Sys init ok \n")
+  printf("Sys init ok \n");
 
   /* Attempt to create a semaphore. */
   xSemaphoreBut = xSemaphoreCreateBinary();
