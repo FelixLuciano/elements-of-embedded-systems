@@ -6,6 +6,10 @@ src\ASF\sam\drivers\rtt\rtt.c
 
 src\ASF\sam\drivers\spi\spi.c
 
+src\oled\ssd1306.c
+
+src\oled\sysfont.c
+
 src\ASF\common\services\clock\same70\sysclk.c
 
 src\ASF\common\services\delay\sam\cycle_counter.c

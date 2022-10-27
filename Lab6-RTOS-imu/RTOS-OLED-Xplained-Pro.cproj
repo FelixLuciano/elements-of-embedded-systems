@@ -358,6 +358,7 @@
   <armgcc.linker.libraries.LibrarySearchPaths>
     <ListValues>
       <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>C:\Users\Lucius\Documents\Insper\Disciplinas\Embarcados\labs\Lab6-RTOS-imu\src\Fusion\Fusion</Value>
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
@@ -505,6 +506,7 @@
   <armgcc.linker.libraries.LibrarySearchPaths>
     <ListValues>
       <Value>../src/ASF/thirdparty/CMSIS/Lib/GCC</Value>
+      <Value>C:\Users\Lucius\Documents\Insper\Disciplinas\Embarcados\labs\Lab6-RTOS-imu\src\Fusion\Fusion</Value>
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
@@ -657,6 +659,8 @@
     <Folder Include="src\ASF\thirdparty\freertos\freertos-8.2.3\Source\portable\GCC\ARM_CM7\r0p1\" />
     <Folder Include="src\ASF\thirdparty\freertos\freertos-8.2.3\Source\portable\MemMang\" />
     <Folder Include="src\config\" />
+    <Folder Include="src\Fusion\" />
+    <Folder Include="src\Fusion\Fusion\" />
     <Folder Include="src\oled\" />
   </ItemGroup>
   <ItemGroup>
@@ -684,6 +688,36 @@
     <None Include="src\ASF\sam\drivers\twihs\twihs.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="src\Fusion\Fusion\Fusion.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionAhrs.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionAhrs.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionAxes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionCalibration.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionCompass.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionCompass.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionMath.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionOffset.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\Fusion\Fusion\FusionOffset.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\mcu6050.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1357,6 +1391,9 @@
       <SubType>compile</SubType>
     </None>
     <None Include="src\ASF\thirdparty\freertos\freertos-8.2.3\Source\readme.txt">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="src\Fusion\Fusion\CMakeLists.txt">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>

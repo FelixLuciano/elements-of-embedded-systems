@@ -6,6 +6,12 @@ src\ASF\sam\drivers\spi\spi.c
 
 src\ASF\sam\drivers\twihs\twihs.c
 
+src\Fusion\Fusion\FusionAhrs.c
+
+src\Fusion\Fusion\FusionCompass.c
+
+src\Fusion\Fusion\FusionOffset.c
+
 src\oled\gfx_mono_framebuffer.c
 
 src\oled\gfx_mono_generic.c

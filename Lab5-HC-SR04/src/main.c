@@ -1,5 +1,9 @@
-#include <asf.h>
 #include "conf_board.h"
+#include <asf.h>
+
+#include "gfx_mono_ug_2832hsweg04.h"
+#include "gfx_mono_text.h"
+#include "sysfont.h"
 
 /** HC-SR04*/
 #define TRIG_PIO     PIOC
@@ -125,6 +129,10 @@ static void task_hcsr04(void *pvParameters) {
 }
 
 static void task_oled(void *pvParameters) {
+	gfx_mono_ssd1306_init();
+
+	gfx_mono_draw_string("Modo:", 0, 0, &sysfont);
+
 	for (;;) {
 		ref distance;
 		if (xQueueReceive(xQueueReadings, &distance, 0)) {
