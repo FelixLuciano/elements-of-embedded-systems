@@ -194,7 +194,7 @@ static void btn_down_event_handler(lv_event_t * e) {
 }
 
 void lv_termostato(void) {
-	// floor floor_temperature = 23.4;
+	float floor_temperature = 25.6;
 
 	static lv_style_t style;
 	lv_style_init(&style);
@@ -244,15 +244,13 @@ void lv_termostato(void) {
 	lv_obj_align(labelFloor, LV_ALIGN_TOP_LEFT, 35 , 45);
 	lv_obj_set_style_text_font(labelFloor, &dseg70, LV_STATE_DEFAULT);
 	lv_obj_set_style_text_color(labelFloor, lv_color_white(), LV_STATE_DEFAULT);
-	lv_label_set_text_fmt(labelFloor, "25");
-	// lv_label_set_text_fmt(labelFloor, "%.1f", floor_temperature);
+	lv_label_set_text_fmt(labelFloor, "%02d.", (int) floor_temperature);
 	
 	lv_obj_t * labelFloorDecimal = lv_label_create(lv_scr_act());
 	lv_obj_align_to(labelFloorDecimal, labelFloor, LV_ALIGN_OUT_RIGHT_BOTTOM, 4, -15);
 	lv_obj_set_style_text_font(labelFloorDecimal, &dseg40, LV_STATE_DEFAULT);
 	lv_obj_set_style_text_color(labelFloorDecimal, lv_color_white(), LV_STATE_DEFAULT);
-	lv_label_set_text_fmt(labelFloorDecimal, ".0");
-	// lv_label_set_text_fmt(labelFloorDecimal, ".%.1f", floor_temperature * 10.0);
+	lv_label_set_text_fmt(labelFloorDecimal, "%01d", (int) (floor_temperature * 10.0) % 10);
 	
 	labelSetValue = lv_label_create(lv_scr_act());
 	lv_obj_align(labelSetValue, LV_ALIGN_TOP_RIGHT, -24 , 45);
